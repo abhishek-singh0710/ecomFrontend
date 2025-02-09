@@ -21,12 +21,14 @@ const Filter = ( { categories }) => {
     // Navigating The User To That New URL
     const navigate = useNavigate();
 
-    const [category, setCategory] = useState("all");
+    const [category, setCategory] = useState("All Products");
     const [sortOrder, setSortOrder] = useState("desc");
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        const currentCategory = searchParams.get("category") || "all";
+        const currentCategoryId = parseInt(searchParams.get("category"),10) || 3;
+        console.log("currentcategoryId="+currentCategoryId);
+        const currentCategory = categories.find((item) => item.categoryId === currentCategoryId)?.categoryName || "All Products";
         const sortOrder = searchParams.get("sortby") || "asc";
         const searchTerm = searchParams.get("keyword") || "";
 
@@ -55,17 +57,22 @@ const Filter = ( { categories }) => {
     }, [searchParams, searchTerm, navigate, pathName]);
 
     const handleCategoryChange = (event) => {
+        event.preventDefault();
         const selectedCategory = event.target.value;
+        setCategory(event.target.value);
         console.log(selectedCategory);
-        if(selectedCategory.toLowerCase() === "all") {
+        const selectedCategoryId = categories.find((item) => item.categoryName === selectedCategory)?.categoryId || 3;
+        console.log("selectedCategoryId=",selectedCategoryId);
+        if(selectedCategory.toLowerCase() === "all products") {
             params.delete("category"); // Since If All Categories Are To Be Fetched No Need To Provide Any Query Parameter
             // It Will Automatically Fetch All The Categories
         }
         else {
-            params.set("category", selectedCategory);
+            console.log("selectedCategory=",selectedCategory);
+            params.set("category", selectedCategoryId);
         }
         navigate(`${pathName}?${params}`);
-        setCategory(event.target.value);
+        // setCategory(event.target.value);
     };
 
     const toggleSortOrder = () => {
@@ -80,7 +87,7 @@ const Filter = ( { categories }) => {
     const handleClearFilters = () => {
         // Getting The PathName From The Window Object Redirecting To http://localhost:xxxx/
         navigate({pathName : window.location.pathname});
-        setCategory("all");
+        setCategory("all products");
     }
 
     return (
